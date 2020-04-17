@@ -1,5 +1,9 @@
-Piece::Piece(vector<vector<Piece*>>& grid, int i, int j, bool white) : grid{grid}, i{i}, j{j}, white{white}, alive{true} {}
+#include "Piece.h"
 
-bool Piece::is_available(const int& i, const int& j) {
+Piece::Piece(vector<vector<Piece*>>& grid, MoveStack& moveStack, int i, int j, bool white) : grid{grid}, moveStack{moveStack}, i{i}, j{j}, white{white}, alive{true} {}
+
+bool Piece::isAvailable(const int& i, const int& j) const {
     return this->grid[i][j] == nullptr;
 }
+
+Piece::~Piece() {}
