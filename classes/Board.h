@@ -17,6 +17,9 @@ class Board {
     public:
         Board();
         ~Board();
+        vector<vector<Piece*>> grid;
+        unordered_set<Piece*> black;
+        unordered_set<Piece*> white;
     private:
         void initPawns();
         void initKings();
@@ -24,9 +27,6 @@ class Board {
         void initKnights();
         void initBishops();
         void initRooks();
-        vector<vector<Piece*>> grid;
-        unordered_set<Piece*> black;
-        unordered_set<Piece*> white;
         MoveStack moveStack;
 };
 

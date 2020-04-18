@@ -6,4 +6,11 @@ bool Piece::isAvailable(const int& i, const int& j) const {
     return this->grid[i][j] == nullptr;
 }
 
+bool Piece::inRange(const int& i, const int& j) const {
+    if (i >= 0 && i <= 7 && j >= 0 && j <= 7) {
+        return true;
+    }
+    return false;
+}
+
 Piece::~Piece() {}

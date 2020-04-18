@@ -1,5 +1,7 @@
 #include "Pawn.h"
 
+bool inRange(const int& i, const int& j);
+
 Pawn::Pawn(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white}, moved{false} {}
 
 Pawn::~Pawn() {}
@@ -12,6 +14,41 @@ void Pawn::move(const int& i, const int& j) {
         this->j = j;
         this->moved = true;
     }
+}
+
+vector<pair<int,int>> Pawn::getValidMoves() const {
+
+    vector<pair<int,int>> validMoves{};
+
+    if (inRange(this->i - (this->white ? 1 : -1), this->j)) {
+        // Condition where pawn moves forward
+        if (this->grid[this->i - (this->white ? 1 : -1)][j] == nullptr) {
+            // Condition where square in front is empty
+            validMoves.push_back({this->i - (this->white ? 1 : -1), this->j});
+            if (inRange(this->i - (this->white ? 2 : -2), j) && !this->moved) {
+                if (this->grid[this->i - (this->white ? 2 : -2)][j] == nullptr) {
+                    // Condition where square two spaces ahead is empty
+                    validMoves.push_back({this->i - (this->white ? 2 : -2), j});
+                }
+            }
+        }
+        // Conditions where pawn attacks upper diagonal squares
+        if (inRange(this->i - (this->white ? 1 : -1), this->j + 1)) {
+            Piece* piece{this->grid[this->i - (this->white ? 1 : -1)][this->j + 1]};
+            if (piece != nullptr && piece->white != this->white) {
+                validMoves.push_back({this->i - (this->white ? 1 : -1), this->j + 1});
+            }
+        }
+        if (inRange(this->i - (this->white ? 1 : -1), this->j - 1)) {
+            Piece* piece{this->grid[this->i - (this->white ? 1 : -1)][this->j - 1]};
+            if (piece != nullptr && piece->white != this->white) {
+                validMoves.push_back({this->i - (this->white ? 1 : -1), this->j - 1});
+            }
+        }
+    }
+
+    return validMoves;
+
 }
 
 bool Pawn::isValid(const int&i, const int& j) const {

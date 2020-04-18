@@ -39,33 +39,33 @@ void Board::initKings() {
 }
 
 void Board::initKnights() {
-    Piece* left{new Knight{this->grid, this->moveStack, 0, 2, false}};
-    Piece* right{new Knight{this->grid, this->moveStack, 0, 5, false}};
-    this->black.insert(left);
-    this->black.insert(right);
-    this->grid[0][2] = left;
-    this->grid[0][5] = right;    
-    left = new Knight{this->grid, this->moveStack, 7, 2, true};
-    right = new Knight{this->grid, this->moveStack, 7, 5, true};
-    this->white.insert(left);
-    this->white.insert(right);
-    this->grid[7][2] = left;
-    this->grid[7][5] = right;
-}
-
-void Board::initBishops() {
-    Piece* left{new Bishop{this->grid, this->moveStack, 0, 1, false}};
-    Piece* right{new Bishop{this->grid, this->moveStack, 0, 6, false}};
+    Piece* left{new Knight{this->grid, this->moveStack, 0, 1, false}};
+    Piece* right{new Knight{this->grid, this->moveStack, 0, 6, false}};
     this->black.insert(left);
     this->black.insert(right);
     this->grid[0][1] = left;
     this->grid[0][6] = right;    
-    left = new Bishop{this->grid, this->moveStack, 7, 1, true};
-    right = new Bishop{this->grid, this->moveStack, 7, 6, true};
+    left = new Knight{this->grid, this->moveStack, 7, 1, true};
+    right = new Knight{this->grid, this->moveStack, 7, 6, true};
     this->white.insert(left);
     this->white.insert(right);
     this->grid[7][1] = left;
     this->grid[7][6] = right;
+}
+
+void Board::initBishops() {
+    Piece* left{new Bishop{this->grid, this->moveStack, 0, 2, false}};
+    Piece* right{new Bishop{this->grid, this->moveStack, 0, 5, false}};
+    this->black.insert(left);
+    this->black.insert(right);
+    this->grid[0][2] = left;
+    this->grid[0][5] = right;    
+    left = new Bishop{this->grid, this->moveStack, 7, 2, true};
+    right = new Bishop{this->grid, this->moveStack, 7, 5, true};
+    this->white.insert(left);
+    this->white.insert(right);
+    this->grid[7][2] = left;
+    this->grid[7][5] = right;
 }
 
 void Board::initRooks() {
