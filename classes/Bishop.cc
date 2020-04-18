@@ -55,3 +55,12 @@ vector<pair<int,int>> Bishop::getValidMoves() const {
 
     return validMoves;
 }
+
+
+string Bishop::getName() const {
+    return "Bishop";
+}
+
+string Bishop::getSHName() const {
+    return "b";
+}

@@ -38,3 +38,12 @@ vector<pair<int,int>> King::getValidMoves() const {
     return validMoves;
 
 }
+
+
+string King::getName() const {
+    return "King";
+}
+
+string King::getSHName() const {
+    return "K";
+}

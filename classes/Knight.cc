@@ -10,8 +10,6 @@ bool Knight::isValid(const int&i, const int& j) const { return true; }
 
 vector<pair<int,int>> Knight::getValidMoves() const {
 
-    cout << "HELLO " << endl;
-
     vector<pair<int,int>> validMoves{};
 
     vector<pair<int,int>> iDiffsJDiffs;
@@ -38,4 +36,12 @@ vector<pair<int,int>> Knight::getValidMoves() const {
     }
 
     return validMoves;
+}
+
+string Knight::getName() const {
+    return "Knight";
+}
+
+string Knight::getSHName() const {
+    return "k";
 }

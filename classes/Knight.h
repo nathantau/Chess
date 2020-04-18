@@ -10,7 +10,8 @@ class Knight : public Piece {
         virtual vector<pair<int,int>> getValidMoves() const override;
         Knight(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white);
         ~Knight();
-        string name{"KNIGHT"};
+        virtual string getName() const override;
+        virtual string getSHName() const override;
     private:
         bool moved;
 };

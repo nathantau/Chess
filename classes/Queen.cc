@@ -130,3 +130,11 @@ vector<pair<int,int>> Queen::getValidMoves() const {
 }
 
 
+
+string Queen::getName() const {
+    return "Queen";
+}
+
+string Queen::getSHName() const {
+    return "Q";
+}

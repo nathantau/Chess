@@ -10,6 +10,8 @@ class Rook : public Piece {
         virtual vector<pair<int,int>> getValidMoves() const override;
         Rook(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white);
         ~Rook();
+        virtual string getName() const override;
+        virtual string getSHName() const override;        
     private:
         bool moved;
 };

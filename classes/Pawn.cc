@@ -2,7 +2,9 @@
 
 bool inRange(const int& i, const int& j);
 
-Pawn::Pawn(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white}, moved{false} {}
+Pawn::Pawn(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white}, moved{false} {
+    cout << &this->grid << endl;
+}
 
 Pawn::~Pawn() {}
 
@@ -84,4 +86,13 @@ bool Pawn::isValid(const int&i, const int& j) const {
         }
     }
     return false;
+}
+
+
+string Pawn::getName() const {
+    return "Pawn";
+}
+
+string Pawn::getSHName() const {
+    return "p";
 }

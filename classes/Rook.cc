@@ -96,3 +96,11 @@ vector<pair<int,int>> Rook::getValidMoves() const {
 
     return validMoves;
 }
+
+string Rook::getName() const {
+    return "Rook";
+}
+
+string Rook::getSHName() const {
+    return "r";
+}
