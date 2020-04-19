@@ -1,6 +1,6 @@
 #include "Rook.h"
 
-Rook::Rook(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white}, moved{false} {}
+Rook::Rook(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
 
 Rook::~Rook() {}
 
@@ -19,80 +19,42 @@ vector<pair<int,int>> Rook::getValidMoves() const {
     vector<pair<int,int>> validMoves{};
 
     // Moving Up/Down
-    int iDiff = 1;
-    bool unblocked{true};
-    while (unblocked) {
-        int i{this->i + iDiff};
-        iDiff += 1;
-        if (inRange(i, this->j)) {
-            if (this->grid[i][this->j] == nullptr) {
-                validMoves.push_back({i, this->j});
-            } else if (this->grid[i][this->j]->white == this->white) {
-                // Condition where piece is same color
-                break;
-            } else if (this->grid[i][this->j]->white != this->white) {
-                // Condition where piece is opposite color
-                validMoves.push_back({i, this->j});
-                break;
-            }
-        }
-    }
-    iDiff = -1;
-    unblocked = true;
-    while (unblocked) {
-        int i{this->i + iDiff};
-        iDiff -= 1;
-        if (inRange(i, this->j)) {
-            if (this->grid[i][this->j] == nullptr) {
-                validMoves.push_back({i, this->j});
-            } else if (this->grid[i][this->j]->white == this->white) {
-                // Condition where piece is same color
-                break;
-            } else if (this->grid[i][this->j]->white != this->white) {
-                // Condition where piece is opposite color
-                validMoves.push_back({i, this->j});
-                break;
+    vector<pair<int,int>> iDiffsJDiffs{};
+    iDiffsJDiffs.push_back({1, 0});
+    iDiffsJDiffs.push_back({-1, 0});
+    iDiffsJDiffs.push_back({0, 1});
+    iDiffsJDiffs.push_back({0, -1});
+
+    for (const auto& iDiffJDiff : iDiffsJDiffs) {
+        const int firstIDiff{iDiffJDiff.first};
+        const int firstJDiff{iDiffJDiff.second};
+        int iDiff{firstIDiff};
+        int jDiff{firstJDiff};
+        bool unblocked = true;
+
+        while (unblocked) {
+            int i{this->i + iDiff};
+            int j{this->j + jDiff};
+            iDiff += firstIDiff;
+            jDiff += firstJDiff;
+            if (inRange(i, j)) {
+                if (this->grid[i][j] == nullptr) {
+                    // Condition where square is empty
+                    validMoves.push_back({i, j});
+                } else if (this->grid[i][j]->white == this->white) {
+                    // Condition where piece in square is same color
+                    unblocked = false;
+                } else if (this->grid[i][j]->white != this->white) {
+                    // Condition where piece in square is opposite color
+                    validMoves.push_back({i, j});
+                    unblocked = false;
+                }
+            } else {
+                unblocked = false;
             }
         }
     }
 
-    // Moving Left/Right
-    int jDiff = 1;
-    unblocked = true;
-    while (unblocked) {
-        int j{this->j + jDiff};
-        jDiff += 1;
-        if (inRange(this->i, j)) {
-            if (this->grid[this->i][j] == nullptr) {
-                validMoves.push_back({i, this->j});
-            } else if (this->grid[this->i][j]->white == this->white) {
-                // Condition where piece is same color
-                break;
-            } else if (this->grid[this->i][j]->white != this->white) {
-                // Condition where piece is opposite color
-                validMoves.push_back({this->i, j});
-                break;
-            }
-        }
-    }
-    iDiff = -1;
-    unblocked = true;
-    while (unblocked) {
-        int j{this->j + jDiff};
-        jDiff -= 1;
-        if (inRange(this->i, j)) {
-            if (this->grid[this->i][j] == nullptr) {
-                validMoves.push_back({i, this->j});
-            } else if (this->grid[this->i][j]->white == this->white) {
-                // Condition where piece is same color
-                break;
-            } else if (this->grid[this->i][j]->white != this->white) {
-                // Condition where piece is opposite color
-                validMoves.push_back({this->i, j});
-                break;
-            }
-        }
-    }
 
     return validMoves;
 }

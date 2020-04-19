@@ -13,7 +13,6 @@ class Knight : public Piece {
         virtual string getName() const override;
         virtual string getSHName() const override;
     private:
-        bool moved;
 };
 
 #endif
