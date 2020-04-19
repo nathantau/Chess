@@ -28,6 +28,37 @@ int main() {
         printBoard(board);
 
         Piece* piece{nullptr};
+
+        if (checked) {
+            // Condition where player is in check. A full search over the alive
+            // pieces of the player's color will determine if any valid moves
+            // (filtered) exist. If not, CHECKMATE!
+            int numValidMoves{0};
+            if (whiteTurn) {
+                for (const auto& whitePiece : board.white) {
+                    if (board.deadWhite.count(whitePiece) == 0) {
+                        // Condiiton where white piece is alive
+                        numValidMoves += filterCheckedMoves(whiteKing, whitePiece, whitePiece->getValidMoves(), board).size();
+                    }
+                }
+                if (numValidMoves == 0) {
+                    cout << "Black wins!!!" << endl;
+                    gameOver = true;
+                }
+            } else {
+                for (const auto& blackPiece : board.black) {
+                    if (board.deadBlack.count(blackPiece) == 0) {
+                        // Condiiton where white piece is alive
+                        numValidMoves += filterCheckedMoves(blackKing, blackPiece, blackPiece->getValidMoves(), board).size();
+                    }
+                }
+                if (numValidMoves == 0) {
+                    cout << "White wins!!!" << endl;
+                    gameOver = true;
+                }
+            }
+        }
+        
         cout << (whiteTurn ? "White's Turn: " : "Black's Turn: ") << endl;
 
         do {
@@ -36,7 +67,7 @@ int main() {
             piece = board.grid[i][j];
         } while (piece == nullptr || piece->white != whiteTurn || filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board).size() == 0);
 
-        cout << "Possible moves for " << piece->getName() << endl;
+        cout << "Possible moves for " << (whiteTurn ? "White" : "Black") << piece->getName() << endl;
 
         vector<pair<int,int>> validMoves = filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board);
 
@@ -52,9 +83,11 @@ int main() {
 
         movePiece(piece, board, validMoves[move].first, validMoves[move].second);
 
-        if (inCheck(piece->white ? whiteKing : blackKing, board)) {
+        if (inCheck(whiteTurn ? blackKing : whiteKing, board)) {
             checked = true;
             cout << "Check!" << endl;
+        } else {
+            checked = false;
         }
 
         // Swap turns
