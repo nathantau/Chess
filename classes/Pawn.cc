@@ -47,8 +47,22 @@ vector<pair<int,int>> Pawn::getValidMoves() const {
         }
     }
 
-    return validMoves;
+    if (!this->moveStack.empty()) {
+        tuple<Piece*,Piece*,pair<int,int>,pair<int,int>> lastMove{this->moveStack.back()};
+        if (get<0>(lastMove)->getSHName() == "p" && get<0>(lastMove)->white != this->white) {
+            // Condition where piece is pawn and pieces are opposite colors
+            if (abs(get<2>(lastMove).first - get<3>(lastMove).first) == 2 && abs(get<3>(lastMove).second - this->j) == 1 && this->i == get<3>(lastMove).first) {
+                // Condition where pawn moved two steps forward and is beside this pawn
+                if (this->grid[this->white ? this->i - 1 : this->i + 1][get<3>(lastMove).second] == nullptr) {
+                    // Condition where destination is empty
+                    // Note that En Passant will always be in range so the check is not needed
+                    validMoves.push_back({this->white ? this->i - 1 : this->i + 1, get<3>(lastMove).second});
+                }
+            }
+        }
+    }
 
+    return validMoves;
 }
 
 bool Pawn::isValid(const int&i, const int& j) const {
@@ -56,8 +70,6 @@ bool Pawn::isValid(const int&i, const int& j) const {
         // Condition where pawn is outside of board range
         return false;
     }
-
-    // if () king is exposed, return false
 
     // en passant
 

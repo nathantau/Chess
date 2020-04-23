@@ -8,6 +8,7 @@ bool inCheck(Piece* king, Board& board);
 vector<pair<int,int>> filterCheckedMoves(Piece* king, Piece* piece, vector<pair<int,int>> validMoves, Board& board);
 void castle(Piece* piece, const int& i, const int& j, Board& board);
 void undoCastle(Board& board);
+void enPassant(Piece* piece, const int& i, const int& j, Board& board);
 
 int main() {
     
@@ -72,8 +73,6 @@ int main() {
 
         cout << "Possible moves for " << (whiteTurn ? "White " : "Black ") << piece->getName() << endl;
 
-        // vector<pair<int,int>> validMoves = filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board);
-
         for (int i{0}; i < validMoves.size(); i++) {
             cout << "(" << i + 1 << ") " << validMoves[i].first << " " << validMoves[i].second << endl;
         }
@@ -128,12 +127,12 @@ void movePiece(Piece* piece, Board& board, const int& i, const int& j) {
 
     Piece* newPos{board.grid[i][j]};
 
-    // Update stack of moves (piece being moved, piece at new position, and position updates)
+    // Update stack of moves (piece being moved, piece being killed, and position updates)
     board.moveStack.push_back({piece, newPos, piece->getPos(), {i, j}});
-    
     if (newPos == nullptr) {
         // Rook moves only if the conditions for castling are satisfied
         castle(piece, i, j, board);
+        enPassant(piece, i, j, board);
         board.grid[piece->getPos().first][piece->getPos().second] = nullptr;
         board.grid[i][j] = piece;
         piece->updatePos(i, j);
@@ -160,16 +159,20 @@ void undoMove(Board& board) {
 
     undoCastle(board);
 
-    if (killed != nullptr) {
-        (piece->white ? board.deadBlack : board.deadWhite).erase(killed);
-    }
-
     // Internal update of position
     piece->updatePos(initPos.first, initPos.second, true);
 
     // Update positioning according to grid
     board.grid[initPos.first][initPos.second] = piece;
-    board.grid[finPos.first][finPos.second] = killed;
+    board.grid[finPos.first][finPos.second] = nullptr;
+
+    if (killed != nullptr) {
+        (piece->white ? board.deadBlack : board.deadWhite).erase(killed);
+        board.grid[killed->getPos().first][killed->getPos().second] = killed;
+    }
+
+    board.moveStack.pop_back();
+
 }
 
 bool inCheck(Piece* king, Board& board) {
@@ -270,3 +273,47 @@ void undoCastle(Board& board) {
     }
 
 }
+
+void enPassant(Piece* piece, const int& i, const int& j, Board& board) {
+
+    if (piece->getSHName() != "p") {
+        // Assertion that piece is a pawn
+        return;
+    }
+
+    // Remove the move that just occurred so it can be modified and re-added
+    tuple<Piece*,Piece*,pair<int,int>,pair<int,int>> backup{board.moveStack.back()};
+    board.moveStack.pop_back();
+
+    if (!board.moveStack.empty()) {
+        tuple<Piece*,Piece*,pair<int,int>,pair<int,int>> lastMove{board.moveStack.back()};
+        if (get<0>(lastMove)->getSHName() == "p" && get<0>(lastMove)->white != piece->white) {
+            // Condition where piece is pawn and pieces are opposite colors
+            if (abs(get<2>(lastMove).first - get<3>(lastMove).first) == 2 && abs(get<3>(lastMove).second - piece->getPos().second) == 1) {
+                // Condition where pawn moved two steps forward and is beside this pawn
+                if (i == (piece->white ? piece->getPos().first - 1 : piece->getPos().second + 1) && j == get<3>(lastMove).second) {
+                    // Remove the pawn being attacked by En Passant
+                    if (piece->white) {
+                        board.deadBlack.insert(get<0>(lastMove));
+                    } else {
+                        board.deadWhite.insert(get<0>(lastMove));
+                    }
+                    board.grid[get<3>(lastMove).first][get<3>(lastMove).second] = nullptr;
+                    board.moveStack.push_back({piece, get<0>(lastMove), {piece->getPos().first, piece->getPos().second}, {i, j}});
+                } else {
+                    board.moveStack.push_back(backup);
+                }
+            } else {
+                board.moveStack.push_back(backup);
+            }
+        } else {
+            board.moveStack.push_back(backup);
+        }
+    } else {
+        board.moveStack.push_back(backup);
+    }
+}
+
+// void undoEnPassant(Board& board) {
+
+// }
