@@ -2,13 +2,14 @@
 
 using namespace std;
 
-void movePiece(Piece* piece, Board& board, const int& i, const int& j);
+void movePiece(Piece* piece, Board& board, const int& i, const int& j, bool test = false);
 void printBoard(Board& board);
 bool inCheck(Piece* king, Board& board);
 vector<pair<int,int>> filterCheckedMoves(Piece* king, Piece* piece, vector<pair<int,int>> validMoves, Board& board);
 void castle(Piece* piece, const int& i, const int& j, Board& board);
 void undoCastle(Board& board);
 void enPassant(Piece* piece, const int& i, const int& j, Board& board);
+bool promote(Piece* piece, const int& i, const int& j, Board& board, bool test);
 
 int main() {
     
@@ -123,7 +124,7 @@ void printBoard(Board& board) {
 }
 
 
-void movePiece(Piece* piece, Board& board, const int& i, const int& j) {
+void movePiece(Piece* piece, Board& board, const int& i, const int& j, bool test) {
 
     Piece* newPos{board.grid[i][j]};
 
@@ -133,6 +134,7 @@ void movePiece(Piece* piece, Board& board, const int& i, const int& j) {
         // Rook moves only if the conditions for castling are satisfied
         castle(piece, i, j, board);
         enPassant(piece, i, j, board);
+        promote(piece, i, j, board, test);
         board.grid[piece->getPos().first][piece->getPos().second] = nullptr;
         board.grid[i][j] = piece;
         piece->updatePos(i, j);
@@ -144,8 +146,10 @@ void movePiece(Piece* piece, Board& board, const int& i, const int& j) {
         } else {
             board.deadWhite.insert(newPos);
         }
-        piece->updatePos(i, j);
-        board.grid[i][j] = piece;
+        if (!promote(piece, i, j, board, test)) {
+            piece->updatePos(i, j);
+            board.grid[i][j] = piece;
+        }
     }
 
 }
@@ -186,17 +190,21 @@ bool inCheck(Piece* king, Board& board) {
 
     if (king->white) {
         for (const auto& blackPiece : board.black) {
-            for (const auto& move : blackPiece->getValidMoves()) {
-                if (move == kingPos) {
-                    return true;
+            if (board.deadBlack.count(blackPiece) == 0) {
+                for (const auto& move : blackPiece->getValidMoves()) {
+                    if (move == kingPos) {
+                        return true;
+                    }
                 }
             }
         }
     } else {
         for (const auto& whitePiece : board.white) {
-            for (const auto& move : whitePiece->getValidMoves()) {
-                if (move == kingPos) {
-                    return true;
+            if (board.deadWhite.count(whitePiece) == 0) {
+                for (const auto& move : whitePiece->getValidMoves()) {
+                    if (move == kingPos) {
+                        return true;
+                    }
                 }
             }
         }
@@ -210,7 +218,7 @@ vector<pair<int,int>> filterCheckedMoves(Piece* king, Piece* piece, vector<pair<
     vector<pair<int,int>> filteredMoves;
 
     for (const auto& move : validMoves) {
-        movePiece(piece, board, move.first, move.second);
+        movePiece(piece, board, move.first, move.second, true);
         if (!inCheck(king, board)) {
             filteredMoves.push_back(move);
         }
@@ -314,6 +322,61 @@ void enPassant(Piece* piece, const int& i, const int& j, Board& board) {
     }
 }
 
-// void undoEnPassant(Board& board) {
+bool promote(Piece* piece, const int& i, const int& j, Board& board, bool test) {
 
-// }
+    // Returns false if the grid needs to be updated elsewhere, otherwise
+    // return true.
+
+    if (piece->getSHName() == "p") {
+        int promoteI{piece->white ? 0 : 7};
+        if (i == promoteI) {
+
+            // Remove the move that just occurred so it can be modified and re-added
+            tuple<Piece*,Piece*,pair<int,int>,pair<int,int>> backup{board.moveStack.back()};
+            board.moveStack.pop_back();
+
+            // This condition will be satisfied when all the possible next moves are being
+            // tested. In this case, the promoted piece is not relevant.
+            if (test) {
+                board.moveStack.push_back(backup);
+                return true;
+            }
+
+            int promotion;
+            do {
+                cout << "Choose which piece you would like to promote your Pawn to: " << endl;
+                cout << "1) Rook" << endl;
+                cout << "2) Knight" << endl;
+                cout << "3) Bishop" << endl;
+                cout << "4) Queen" << endl;
+                cin >> promotion;
+            } while (promotion < 1 || promotion > 4);
+
+            Piece* promoted;
+
+            if (promotion == 1) {
+                promoted = new Rook{board.grid, board.moveStack, i, j, piece->white};
+            } else if (promotion == 2) {
+                promoted = new Knight{board.grid, board.moveStack, i, j, piece->white};
+            } else if (promotion == 3) {
+                promoted = new Bishop{board.grid, board.moveStack, i, j, piece->white};
+            } else {
+                promoted = new Queen{board.grid, board.moveStack, i, j, piece->white};
+            }
+
+            // Kill the pawn being promoted
+            (piece->white ? board.deadWhite : board.deadBlack).insert(piece);
+            (piece->white ? board.white : board.black).insert(promoted);
+
+            cout << promoted->getSHName() << endl;
+            // Set location of promoted
+            board.grid[i][j] = promoted;
+
+            // Correct moveStack
+            board.moveStack.push_back({promoted, piece, piece->getPos(), {i, j}});
+
+            return true;
+        }
+    }
+    return false;
+}
