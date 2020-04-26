@@ -22,7 +22,6 @@ class Piece {
         virtual bool isValid(const int&i, const int& j) const = 0;
     protected:
         Piece(vector<vector<Piece*>>& grid, vector<tuple<Piece*,Piece*,pair<int,int>,pair<int,int>>>& moveStack, int i, int j, bool white);
-        // Piece(vector<vector<Piece*>>& grid, vector<pair<Piece*,pair<pair<int,int>,pair<int,int>>>>& moveStack, int i, int j, bool white);
         bool isAvailable(const int& i, const int& j) const;
         vector<vector<Piece*>>& grid;
         vector<tuple<Piece*,Piece*,pair<int,int>,pair<int,int>>>& moveStack;

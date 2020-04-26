@@ -7,8 +7,6 @@ Rook::~Rook() {}
 void Rook::move(const int& i, const int& j) {}
 
 bool Rook::isValid(const int&i, const int& j) const { 
-    
-    
 
     
     return true; 

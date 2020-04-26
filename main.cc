@@ -1,4 +1,6 @@
-#include "Board.cc"
+#include "classes/Board.cc"
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
 
 using namespace std;
 
@@ -12,7 +14,53 @@ void enPassant(Piece* piece, const int& i, const int& j, Board& board);
 bool promote(Piece* piece, const int& i, const int& j, Board& board, bool test);
 
 int main() {
-    
+
+    // Create the window
+    sf::RenderWindow window(sf::VideoMode(1600, 1600), "My window");
+
+    // Create squares corresponding to checkerboard pattern
+    vector<sf::RectangleShape> rectangles;
+    for (int i{0}; i < 8; i++) {
+        for (int j{0}; j < 8; j++) {
+            // Create 200x200 square and set corresponding position
+            sf::RectangleShape rect{sf::Vector2f{200, 200}};
+            rect.setPosition(i * 200, j * 200);
+            rect.setFillColor((i + j) % 2 == 0 ? sf::Color{96, 214, 98, 0} : sf::Color{255, 255, 255, 1});
+            rectangles.push_back(rect);
+        }
+    }
+
+
+    // sf::RectangleShape rect1(sf::Vector2f(200, 200));
+
+    // run the program as long as the window is open
+    while (window.isOpen())
+    {
+        // check all the window's events that were triggered since the last iteration of the loop
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            // "close requested" event: we close the window
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        // clear the window with black color
+        window.clear(sf::Color::Black);
+
+        // draw everything here...
+        // window.draw(...);
+
+        for (const auto& rect : rectangles) {
+            window.draw(rect);
+        }
+
+
+
+        // end the current frame
+        window.display();
+    }    
+
     Board board{};
 
     bool whiteTurn{true};
