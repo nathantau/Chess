@@ -27,6 +27,11 @@ int Piece::getNumMoves() const {
     return this->numMoves;
 }
 
+int Piece::setNumMoves(const int& numMoves) {
+    this->numMoves = numMoves;
+}
+
+
 std::pair<int,int> Piece::getPos() const {
     return {this->i, this->j};
 }

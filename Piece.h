@@ -13,6 +13,7 @@ class Piece {
         void updatePos(const int& i, const int& j, bool undo = false);
         std::pair<int,int> getPos() const;
         int getNumMoves() const;
+        int setNumMoves(const int& numMoves);
         virtual std::string getName() const = 0;
         virtual std::string getSHName() const = 0;
     private:
