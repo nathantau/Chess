@@ -1,6 +1,6 @@
 #include "Board.h"
 
-Board::Board() : grid{vector<vector<Piece*>>(8, vector<Piece*>(8, nullptr))} {
+Board::Board() : grid{std::vector<std::vector<Piece*>>(8, std::vector<Piece*>(8, nullptr))} {
     initPawns();
     initRooks();
     initKnights();

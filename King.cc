@@ -1,16 +1,12 @@
 #include "King.h"
 
-King::King(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
+King::King(std::vector<std::vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
 
 King::~King() {}
 
-void King::move(const int& i, const int& j) {}
+std::vector<std::pair<int,int>> King::getValidMoves() const {
 
-bool King::isValid(const int&i, const int& j) const { return true; }
-
-vector<pair<int,int>> King::getValidMoves() const {
-
-    vector<pair<int,int>> validMoves{};
+    std::vector<std::pair<int,int>> validMoves{};
 
     // Moves that validate checking will be done in a higher-level class.
 
@@ -69,10 +65,10 @@ vector<pair<int,int>> King::getValidMoves() const {
 }
 
 
-string King::getName() const {
+std::string King::getName() const {
     return "King";
 }
 
-string King::getSHName() const {
+std::string King::getSHName() const {
     return "K";
 }

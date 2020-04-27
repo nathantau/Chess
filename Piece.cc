@@ -1,6 +1,6 @@
 #include "Piece.h"
 
-Piece::Piece(vector<vector<Piece*>>& grid, MoveStack& moveStack, int i, int j, bool white) : grid{grid}, moveStack{moveStack}, i{i}, j{j}, white{white}, alive{true}, numMoves{0} {}
+Piece::Piece(std::vector<std::vector<Piece*>>& grid, MoveStack& moveStack, int i, int j, bool white) : grid{grid}, moveStack{moveStack}, i{i}, j{j}, white{white}, alive{true}, numMoves{0} {}
 
 bool Piece::isAvailable(const int& i, const int& j) const {
     return this->grid[i][j] == nullptr;
@@ -27,7 +27,7 @@ int Piece::getNumMoves() const {
     return this->numMoves;
 }
 
-pair<int,int> Piece::getPos() const {
+std::pair<int,int> Piece::getPos() const {
     return {this->i, this->j};
 }
 

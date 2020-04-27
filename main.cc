@@ -1,13 +1,13 @@
-#include "classes/Board.cc"
+#include "Board.h"
+#include "SpritesManager.h"
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
-
-using namespace std;
+#include <unordered_map>
 
 void movePiece(Piece* piece, Board& board, const int& i, const int& j, bool test = false);
 void printBoard(Board& board);
 bool inCheck(Piece* king, Board& board);
-vector<pair<int,int>> filterCheckedMoves(Piece* king, Piece* piece, vector<pair<int,int>> validMoves, Board& board);
+std::vector<std::pair<int,int>> filterCheckedMoves(Piece* king, Piece* piece, std::vector<std::pair<int,int>> validMoves, Board& board);
 void castle(Piece* piece, const int& i, const int& j, Board& board);
 void undoCastle(Board& board);
 void enPassant(Piece* piece, const int& i, const int& j, Board& board);
@@ -15,23 +15,34 @@ bool promote(Piece* piece, const int& i, const int& j, Board& board, bool test);
 
 int main() {
 
+    // Utils
+    SpritesManager spritesManager{};
+    Board board{};
+
+    // This cache is responsible for saving the textures that have
+    // already been loaded in.
+    std::unordered_map<Piece*, sf::Texture> textureCache{};
+
+    bool whiteTurn{true};
+    bool gameOver{false};
+
+
+
+
     // Create the window
     sf::RenderWindow window(sf::VideoMode(1600, 1600), "My window");
 
     // Create squares corresponding to checkerboard pattern
-    vector<sf::RectangleShape> rectangles;
+    std::vector<sf::RectangleShape> rectangles;
     for (int i{0}; i < 8; i++) {
         for (int j{0}; j < 8; j++) {
-            // Create 200x200 square and set corresponding position
+            // Create 200x200 square and set corresponding position/color
             sf::RectangleShape rect{sf::Vector2f{200, 200}};
             rect.setPosition(i * 200, j * 200);
-            rect.setFillColor((i + j) % 2 == 0 ? sf::Color{96, 214, 98, 0} : sf::Color{255, 255, 255, 1});
+            rect.setFillColor((i + j) % 2 == 0 ? sf::Color{96, 214, 98, 255} : sf::Color{255, 255, 255, 255});
             rectangles.push_back(rect);
         }
     }
-
-
-    // sf::RectangleShape rect1(sf::Vector2f(200, 200));
 
     // run the program as long as the window is open
     while (window.isOpen())
@@ -41,8 +52,9 @@ int main() {
         while (window.pollEvent(event))
         {
             // "close requested" event: we close the window
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed)  {
                 window.close();
+            }
         }
 
         // clear the window with black color
@@ -51,22 +63,61 @@ int main() {
         // draw everything here...
         // window.draw(...);
 
+        // Draw background checkerboard
         for (const auto& rect : rectangles) {
             window.draw(rect);
         }
 
+        // Load and draw sprites (if they are alive)
+        for (const auto& piece : board.white) {
+            if (board.deadWhite.count(piece) == 0) {
+                if (textureCache.count(piece) == 1) {
+                    // Condition where cache saved piece's sprite
+                    sf::Sprite sprite{textureCache[piece]};                    
+                    sprite.setPosition(piece->getPos().second * 200, piece->getPos().first * 200);
+                    window.draw(sprite);
+                } else {
+                    sf::Texture texture;
+                    texture.loadFromFile("sprites/" + spritesManager.getFilename(piece));
+                    sf::Sprite sprite{texture};
+                    textureCache[piece] = texture;
+                    sprite.setPosition(piece->getPos().second * 200, piece->getPos().first * 200);
+                    window.draw(sprite);
+                }
+            }
+        }
 
+        // Load and draw sprites (if they are alive)
+        for (const auto& piece : board.black) {
+            if (board.deadBlack.count(piece) == 0) {
+                if (textureCache.count(piece) == 1) {
+                    // Condition where cache saved piece's sprite
+                    sf::Sprite sprite{textureCache[piece]};                    
+                    sprite.setPosition(piece->getPos().second * 200, piece->getPos().first * 200);
+                    window.draw(sprite);
+                } else {
+                    sf::Texture texture;
+                    texture.loadFromFile("sprites/" + spritesManager.getFilename(piece));
+                    sf::Sprite sprite{texture};
+                    textureCache[piece] = texture;
+                    sprite.setPosition(piece->getPos().second * 200, piece->getPos().first * 200);
+                    window.draw(sprite);
+                }
+            }
+        }
+
+        // Add a texture onto window (test)
+        // sf::Texture texture;
+        // texture.loadFromFile("sprites/w_pawn.png");
+        // sf::Sprite sprite;
+        // sprite.setTexture(texture);
+        // window.draw(sprite);
 
         // end the current frame
         window.display();
     }    
 
-    Board board{};
-
-    bool whiteTurn{true};
-    bool gameOver{false};
-
-    string input;
+    std::string input;
     int i;
     int j;
 
@@ -94,7 +145,7 @@ int main() {
                     }
                 }
                 if (numValidMoves == 0) {
-                    cout << "Black wins!!!" << endl;
+                    std::cout << "Black wins!!!" << std::endl;
                     gameOver = true;
                 }
             } else {
@@ -105,30 +156,30 @@ int main() {
                     }
                 }
                 if (numValidMoves == 0) {
-                    cout << "White wins!!!" << endl;
+                    std::cout << "White wins!!!" << std::endl;
                     gameOver = true;
                 }
             }
         }
 
-        cout << (whiteTurn ? "White's Turn: " : "Black's Turn: ") << endl;
+        std::cout << (whiteTurn ? "White's Turn: " : "Black's Turn: ") << std::endl;
 
-        vector<pair<int,int>> validMoves;
+        std::vector<std::pair<int,int>> validMoves;
         do {
-            cout << "Please enter piece's position like so {i} {j}" << endl;
-            cin >> i >> j;
+            std::cout << "Please enter piece's position like so {i} {j}" << std::endl;
+            std::cin >> i >> j;
             piece = board.grid[i][j];
         } while (piece == nullptr || piece->white != whiteTurn || (validMoves = filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board)).size() == 0);
 
-        cout << "Possible moves for " << (whiteTurn ? "White " : "Black ") << piece->getName() << endl;
+        std::cout << "Possible moves for " << (whiteTurn ? "White " : "Black ") << piece->getName() << std::endl;
 
         for (int i{0}; i < validMoves.size(); i++) {
-            cout << "(" << i + 1 << ") " << validMoves[i].first << " " << validMoves[i].second << endl;
+            std::cout << "(" << i + 1 << ") " << validMoves[i].first << " " << validMoves[i].second << std::endl;
         }
 
         int move;
         do {
-            cin >> move;
+            std::cin >> move;
             move -= 1;
         } while (move < 0 || move >= validMoves.size());
 
@@ -136,7 +187,7 @@ int main() {
 
         if (inCheck(whiteTurn ? blackKing : whiteKing, board)) {
             checked = true;
-            cout << "Check!" << endl;
+            std::cout << "Check!" << std::endl;
         } else {
             checked = false;
         }
@@ -148,27 +199,27 @@ int main() {
 }
 
 void printBoard(Board& board) {
-    cout << "  | 0 1 2 3 4 5 6 7" << endl;
-    cout << "-------------------" << endl;
+    std::cout << "  | 0 1 2 3 4 5 6 7" << std::endl;
+    std::cout << "-------------------" << std::endl;
     int i{0};
     for (const auto& row : board.grid) {
-        cout << i << " | ";
+        std::cout << i << " | ";
         for (const auto& square : row) {
             if (square == nullptr) {
-                cout << "  ";
+                std::cout << "  ";
             } else {
-                cout << square->getSHName();
+                std::cout << square->getSHName();
                 if (square->white) {
-                    cout << "*";
+                    std::cout << "*";
                 } else {
-                    cout << " ";
+                    std::cout << " ";
                 }
             }
         }
         i++;
-        cout << endl;
+        std::cout << std::endl;
     }
-    cout << endl;
+    std::cout << std::endl;
 }
 
 
@@ -204,10 +255,10 @@ void movePiece(Piece* piece, Board& board, const int& i, const int& j, bool test
 
 void undoMove(Board& board) {
 
-    Piece* piece{get<0>(board.moveStack.back())};
-    Piece* killed{get<1>(board.moveStack.back())};
-    const pair<int,int> initPos{get<2>(board.moveStack.back())};
-    const pair<int,int> finPos{get<3>(board.moveStack.back())};
+    Piece* piece{std::get<0>(board.moveStack.back())};
+    Piece* killed{std::get<1>(board.moveStack.back())};
+    const std::pair<int,int> initPos{std::get<2>(board.moveStack.back())};
+    const std::pair<int,int> finPos{std::get<3>(board.moveStack.back())};
 
     undoCastle(board);
 
@@ -234,7 +285,7 @@ bool inCheck(Piece* king, Board& board) {
     // pieces of the opposite color and see if they
     // coincide. If so, then the king is being Checked.
 
-    pair<int,int> kingPos{king->getPos()};
+    std::pair<int,int> kingPos{king->getPos()};
 
     if (king->white) {
         for (const auto& blackPiece : board.black) {
@@ -260,10 +311,10 @@ bool inCheck(Piece* king, Board& board) {
     return false;
 }
 
-vector<pair<int,int>> filterCheckedMoves(Piece* king, Piece* piece, vector<pair<int,int>> validMoves, Board& board) {
+std::vector<std::pair<int,int>> filterCheckedMoves(Piece* king, Piece* piece, std::vector<std::pair<int,int>> validMoves, Board& board) {
 
-    pair<int,int> piecePos{piece->getPos()};
-    vector<pair<int,int>> filteredMoves;
+    std::pair<int,int> piecePos{piece->getPos()};
+    std::vector<std::pair<int,int>> filteredMoves;
 
     for (const auto& move : validMoves) {
         movePiece(piece, board, move.first, move.second, true);
@@ -303,10 +354,10 @@ void castle(Piece* piece, const int& i, const int& j, Board& board) {
 
 void undoCastle(Board& board) {
 
-    Piece* piece{get<0>(board.moveStack.back())};
-    Piece* killed{get<1>(board.moveStack.back())};
-    const pair<int,int> initPos{get<2>(board.moveStack.back())};
-    const pair<int,int> finPos{get<3>(board.moveStack.back())};
+    Piece* piece{std::get<0>(board.moveStack.back())};
+    Piece* killed{std::get<1>(board.moveStack.back())};
+    const std::pair<int,int> initPos{std::get<2>(board.moveStack.back())};
+    const std::pair<int,int> finPos{std::get<3>(board.moveStack.back())};
 
     int sideI{piece->white ? 7 : 0};
 
@@ -338,24 +389,24 @@ void enPassant(Piece* piece, const int& i, const int& j, Board& board) {
     }
 
     // Remove the move that just occurred so it can be modified and re-added
-    tuple<Piece*,Piece*,pair<int,int>,pair<int,int>> backup{board.moveStack.back()};
+    std::tuple<Piece*,Piece*,std::pair<int,int>,std::pair<int,int>> backup{board.moveStack.back()};
     board.moveStack.pop_back();
 
     if (!board.moveStack.empty()) {
-        tuple<Piece*,Piece*,pair<int,int>,pair<int,int>> lastMove{board.moveStack.back()};
-        if (get<0>(lastMove)->getSHName() == "p" && get<0>(lastMove)->white != piece->white) {
+        std::tuple<Piece*,Piece*,std::pair<int,int>,std::pair<int,int>> lastMove{board.moveStack.back()};
+        if (std::get<0>(lastMove)->getSHName() == "p" && std::get<0>(lastMove)->white != piece->white) {
             // Condition where piece is pawn and pieces are opposite colors
-            if (abs(get<2>(lastMove).first - get<3>(lastMove).first) == 2 && abs(get<3>(lastMove).second - piece->getPos().second) == 1) {
+            if (std::abs(std::get<2>(lastMove).first - std::get<3>(lastMove).first) == 2 && std::abs(std::get<3>(lastMove).second - piece->getPos().second) == 1) {
                 // Condition where pawn moved two steps forward and is beside this pawn
-                if (i == (piece->white ? piece->getPos().first - 1 : piece->getPos().second + 1) && j == get<3>(lastMove).second) {
+                if (i == (piece->white ? piece->getPos().first - 1 : piece->getPos().second + 1) && j == std::get<3>(lastMove).second) {
                     // Remove the pawn being attacked by En Passant
                     if (piece->white) {
-                        board.deadBlack.insert(get<0>(lastMove));
+                        board.deadBlack.insert(std::get<0>(lastMove));
                     } else {
-                        board.deadWhite.insert(get<0>(lastMove));
+                        board.deadWhite.insert(std::get<0>(lastMove));
                     }
-                    board.grid[get<3>(lastMove).first][get<3>(lastMove).second] = nullptr;
-                    board.moveStack.push_back({piece, get<0>(lastMove), {piece->getPos().first, piece->getPos().second}, {i, j}});
+                    board.grid[std::get<3>(lastMove).first][std::get<3>(lastMove).second] = nullptr;
+                    board.moveStack.push_back({piece, std::get<0>(lastMove), {piece->getPos().first, piece->getPos().second}, {i, j}});
                 } else {
                     board.moveStack.push_back(backup);
                 }
@@ -380,7 +431,7 @@ bool promote(Piece* piece, const int& i, const int& j, Board& board, bool test) 
         if (i == promoteI) {
 
             // Remove the move that just occurred so it can be modified and re-added
-            tuple<Piece*,Piece*,pair<int,int>,pair<int,int>> backup{board.moveStack.back()};
+            std::tuple<Piece*,Piece*,std::pair<int,int>,std::pair<int,int>> backup{board.moveStack.back()};
             board.moveStack.pop_back();
 
             // This condition will be satisfied when all the possible next moves are being
@@ -392,12 +443,12 @@ bool promote(Piece* piece, const int& i, const int& j, Board& board, bool test) 
 
             int promotion;
             do {
-                cout << "Choose which piece you would like to promote your Pawn to: " << endl;
-                cout << "1) Rook" << endl;
-                cout << "2) Knight" << endl;
-                cout << "3) Bishop" << endl;
-                cout << "4) Queen" << endl;
-                cin >> promotion;
+                std::cout << "Choose which piece you would like to promote your Pawn to: " << std::endl;
+                std::cout << "1) Rook" << std::endl;
+                std::cout << "2) Knight" << std::endl;
+                std::cout << "3) Bishop" << std::endl;
+                std::cout << "4) Queen" << std::endl;
+                std::cin >> promotion;
             } while (promotion < 1 || promotion > 4);
 
             Piece* promoted;
@@ -416,7 +467,7 @@ bool promote(Piece* piece, const int& i, const int& j, Board& board, bool test) 
             (piece->white ? board.deadWhite : board.deadBlack).insert(piece);
             (piece->white ? board.white : board.black).insert(promoted);
 
-            cout << promoted->getSHName() << endl;
+            std::cout << promoted->getSHName() << std::endl;
             // Set location of promoted
             board.grid[i][j] = promoted;
 

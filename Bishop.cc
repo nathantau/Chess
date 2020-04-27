@@ -1,23 +1,15 @@
 #include "Bishop.h"
 
-Bishop::Bishop(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
-
-void Bishop::move(const int& i, const int& j) {
-    
-}
-
-bool Bishop::isValid(const int&i, const int& j) const {
-    return true;
-}
+Bishop::Bishop(std::vector<std::vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
 
 Bishop::~Bishop() {}
 
-vector<pair<int,int>> Bishop::getValidMoves() const {
+std::vector<std::pair<int,int>> Bishop::getValidMoves() const {
 
-    vector<pair<int,int>> validMoves{};
+    std::vector<std::pair<int,int>> validMoves{};
 
     // Moving diagonally
-    vector<pair<int,int>> iDiffsJDiffs{};
+    std::vector<std::pair<int,int>> iDiffsJDiffs{};
     iDiffsJDiffs.push_back({1, 1});
     iDiffsJDiffs.push_back({-1, 1});
     iDiffsJDiffs.push_back({1, -1});
@@ -57,10 +49,10 @@ vector<pair<int,int>> Bishop::getValidMoves() const {
 }
 
 
-string Bishop::getName() const {
+std::string Bishop::getName() const {
     return "Bishop";
 }
 
-string Bishop::getSHName() const {
+std::string Bishop::getSHName() const {
     return "b";
 }

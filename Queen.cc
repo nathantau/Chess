@@ -1,23 +1,15 @@
 #include "Queen.h"
 
-Queen::Queen(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
+Queen::Queen(std::vector<std::vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
 Queen::~Queen() {}
 
-void Queen::move(const int& i, const int& j) {
-    
-}
+std::vector<std::pair<int,int>> Queen::getValidMoves() const {
 
-bool Queen::isValid(const int&i, const int& j) const {
-    return true;
-}
-
-vector<pair<int,int>> Queen::getValidMoves() const {
-
-    vector<pair<int,int>> validMoves{};
+    std::vector<std::pair<int,int>> validMoves{};
 
     // Moving Up/Down
     // Moving Diagonally
-    vector<pair<int,int>> iDiffsJDiffs{};
+    std::vector<std::pair<int,int>> iDiffsJDiffs{};
     iDiffsJDiffs.push_back({1, 0});
     iDiffsJDiffs.push_back({-1, 0});
     iDiffsJDiffs.push_back({0, 1});
@@ -63,10 +55,10 @@ vector<pair<int,int>> Queen::getValidMoves() const {
 
 
 
-string Queen::getName() const {
+std::string Queen::getName() const {
     return "Queen";
 }
 
-string Queen::getSHName() const {
+std::string Queen::getSHName() const {
     return "Q";
 }
