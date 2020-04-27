@@ -106,6 +106,10 @@ void Utils::undoCastle(Board& board) {
     const std::pair<int,int> initPos{std::get<2>(board.moveStack.back())};
     const std::pair<int,int> finPos{std::get<3>(board.moveStack.back())};
 
+    if (piece->getSHName() != "K") {
+        return;
+    }
+
     int sideI{piece->white ? 7 : 0};
 
     if (initPos.first == sideI && initPos.second == 4) {
@@ -128,6 +132,32 @@ void Utils::undoCastle(Board& board) {
 
 }
 
+void Utils::castle(Piece* piece, const int& i, const int& j, Board& board) {
+
+    // This function handles only the movement of the corresponding
+    // rook to the King being castled
+
+    if (piece == nullptr || piece->getSHName() != "K") {
+        return;
+    }
+
+    int sideI{piece->white ? 7 : 0};
+
+    if (board.grid[sideI][4] == piece) {
+        if (sideI == i && j == 6) {
+            // King's castle
+            board.grid[sideI][5] = board.grid[sideI][7];
+            board.grid[sideI][7] = nullptr;
+            board.grid[sideI][5]->updatePos(sideI, 5);
+        } else if (sideI == i && j == 2) {
+            // Queen's castle
+            board.grid[sideI][3] = board.grid[sideI][0];
+            board.grid[sideI][0] = nullptr;
+            board.grid[sideI][3]->updatePos(sideI, 3);
+        }
+    }
+}
+
 std::vector<std::pair<int,int>> Utils::filterCheckedMoves(Piece* king, Piece* piece, std::vector<std::pair<int,int>> validMoves, Board& board) {
 
     std::pair<int,int> piecePos{piece->getPos()};
@@ -143,31 +173,6 @@ std::vector<std::pair<int,int>> Utils::filterCheckedMoves(Piece* king, Piece* pi
     return filteredMoves;
 }
 
-void Utils::castle(Piece* piece, const int& i, const int& j, Board& board) {
-
-    // This function handles only the movement of the corresponding
-    // rook to the King being castled
-
-    if (piece == nullptr) {
-        return;
-    }
-
-    int sideI{piece->white ? 7 : 0};
-
-    if (board.grid[sideI][4] == piece) {
-        if (sideI == i && j == 6) {
-            // King's castle
-            board.grid[sideI][5] = board.grid[sideI][7];
-            board.grid[sideI][5]->updatePos(sideI, 5);
-            board.grid[sideI][7] = nullptr;
-        } else if (sideI == i && j == 2) {
-            // Queen's castle
-            board.grid[sideI][3] = board.grid[sideI][0];
-            board.grid[sideI][3]->updatePos(sideI, 3);
-            board.grid[sideI][0] = nullptr;                
-        }
-    }
-}
 
 bool Utils::inCheck(Piece* king, Board& board) {
 

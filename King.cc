@@ -29,15 +29,11 @@ std::vector<std::pair<int,int>> King::getValidMoves() const {
     // Castleing
     // The movement of the corresponding Rook will be handled in the main method
     if (this->numMoves == 0) {
-        std::cout << "HELLO" << std::endl;
         // Condition where king is unmoved
         if (this->white) {
-        std::cout << this->grid[7][7]->getNumMoves() << std::endl;
             if (this->grid[7][7] != nullptr && this->grid[7][7]->getNumMoves() == 0) {
                 // Condition where King's Rook has not moved yet
-        std::cout << "HELLO1" << std::endl;
                 if (this->grid[7][5] == nullptr && this->grid[7][6] == nullptr) {
-        std::cout << "HELLO3" << std::endl;
                     // Condition where bishop and knight have moved somewhere else
                     validMoves.push_back({7, 6});
                 }
