@@ -21,6 +21,7 @@ int main() {
     bool checked{false};
     bool windowLoaded{false};
     bool pieceSelected{false};
+    bool pressing{false};
 
     Piece* whiteKing{board.grid[7][4]};
     Piece* blackKing{board.grid[0][4]};
@@ -101,74 +102,82 @@ int main() {
             }
 
             if (pieceSelected) {
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                    sf::Vector2i localPos{sf::Mouse::getPosition(window)};
-                    i = localPos.y / 200;
-                    j = localPos.x / 200;
-                    
-                    if ((0 <= i && i <= 8 && 0 <= j && j <= 8)) {
-                        bool selectedValid{false};
-                        for (const auto& move : validMoves) {
-                            if (move.first == i && move.second == j) {
-                                // Condition where valid move is selected
-                                selectedValid = true;
-                            }
-                        }
-                        if (selectedValid) {
-                            // Condition where piece moves (the turn must switch to avoid hazards)
-                            Utils::printBoard(board);
-                            Utils::movePiece(piece, board, i, j);
-                            Utils::printBoard(board);
-                            if (Utils::inCheck(whiteTurn ? blackKing : whiteKing, board)) {
-                                checked = true;
-                            } else {
-                                checked = false;
-                            }
-                            // Switch turns
-                            whiteTurn = !whiteTurn;
-                            // Reset values for rendering
-                            pieceSelected = false;
-                            validMoves.clear();
-                            validMovesRects.clear();
-                        } else {
-                            pieceSelected = false;
-                            validMoves.clear();
-                            validMovesRects.clear();
-                            piece = board.grid[i][j];
-                            if (!(piece == nullptr || piece->white != whiteTurn || (validMoves = Utils::filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board)).size() == 0)) {
-                                pieceSelected = true;
-                                for (const auto& move : validMoves) {
-                                    sf::RectangleShape rect{sf::Vector2f{200, 200}};
-                                    rect.setPosition(move.second * 200, move.first * 200);
-                                    rect.setFillColor((move.first + move.second) % 2 == 0 ? sf::Color{224, 215, 108, 255} : sf::Color{237, 227, 114, 255});
-                                    validMovesRects.push_back(rect);
+
+                if (pressing == true) {
+                    while (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                        // Do nothing...
+                    }
+                    pressing = false;
+                } else {
+                    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                        sf::Vector2i localPos{sf::Mouse::getPosition(window)};
+                        i = localPos.y / 200;
+                        j = localPos.x / 200;
+                        
+                        std::cout << "HELLO" << std::endl;
+
+                        if ((0 <= i && i <= 8 && 0 <= j && j <= 8)) {
+                            bool selectedValid{false};
+                            for (const auto& move : validMoves) {
+                                if (move.first == i && move.second == j) {
+                                    // Condition where valid move is selected
+                                    selectedValid = true;
                                 }
-                            }                            
+                            }
+                            if (selectedValid) {
+                                // Condition where piece moves (the turn must switch to avoid hazards)
+                                Utils::printBoard(board);
+                                Utils::movePiece(piece, board, i, j);
+                                Utils::printBoard(board);
+                                if (Utils::inCheck(whiteTurn ? blackKing : whiteKing, board)) {
+                                    checked = true;
+                                } else {
+                                    checked = false;
+                                }
+                                // Switch turns
+                                whiteTurn = !whiteTurn;
+                                // Reset values for rendering
+                                pieceSelected = false;
+                                validMoves.clear();
+                                validMovesRects.clear();
+                            } else {
+                                pieceSelected = false;
+                                validMoves.clear();
+                                validMovesRects.clear();
+                                piece = board.grid[i][j];
+                                if (!(piece == nullptr || piece->white != whiteTurn || (validMoves = Utils::filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board)).size() == 0)) {
+                                    pieceSelected = true;
+                                    for (const auto& move : validMoves) {
+                                        sf::RectangleShape rect{sf::Vector2f{200, 200}};
+                                        rect.setPosition(move.second * 200, move.first * 200);
+                                        rect.setFillColor((move.first + move.second) % 2 == 0 ? sf::Color{224, 215, 108, 255} : sf::Color{237, 227, 114, 255});
+                                        validMovesRects.push_back(rect);
+                                    }
+                                }                            
+                            }
                         }
                     }
-                    
-
                 }
             } else {
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                     sf::Vector2i localPos{sf::Mouse::getPosition(window)};
                     i = localPos.y / 200;
                     j = localPos.x / 200;
+                    std::cout << i << " " << j << std::endl;
                     piece = board.grid[i][j];
-                    validMoves.clear();
+                    Utils::printBoard(board);
                     if (piece != nullptr && piece->white == whiteTurn && (validMoves = Utils::filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board)).size() != 0) {
-                        std::cout << "HELLO FUCKER" << std::endl;
+                        // std::cout << "HELLO FUCKER" << std::endl;
                         pieceSelected = true;
+                        pressing = true;
                         for (const auto& move : validMoves) {
-                            std::cout << move.first << " " << move.second << std::endl;
+                            // std::cout << move.first << " " << move.second << std::endl;
                             sf::RectangleShape rect{sf::Vector2f{200, 200}};
                             rect.setPosition(move.second * 200, move.first * 200);
-                            rect.setFillColor(sf::Color{224, 215, 108, 255});
+                            rect.setFillColor((move.first + move.second) % 2 == 0 ? sf::Color{224, 215, 108, 255} : sf::Color{237, 227, 114, 255});
                             validMovesRects.push_back(rect);
                         }
-                    } else {
-                        piece = nullptr;
-                    }            
+                    }        
                 }
             }
 
