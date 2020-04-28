@@ -38,24 +38,24 @@ std::vector<std::pair<int,int>> King::getValidMoves() const {
                     validMoves.push_back({7, 6});
                 }
             }
-            if (this->grid[7][0] != nullptr && this->grid[7][7]->white && this->grid[7][0]->getNumMoves() == 0) {
+            if (this->grid[7][0] != nullptr && this->grid[7][0]->white && this->grid[7][0]->getNumMoves() == 0) {
                 // Condition where Queen's Rook has not moved yet
-                if (this->grid[7][1] == nullptr && this->grid[7][2] == nullptr && this->grid[7][3]) {
+                if (this->grid[7][1] == nullptr && this->grid[7][2] == nullptr && this->grid[7][3] == nullptr) {
                     // Condition where bishop and knight have moved somewhere else
                     validMoves.push_back({7, 2});
                 }                
             }
         } else {
-            if (this->grid[0][7] != nullptr && !this->grid[7][7]->white && this->grid[0][7]->getNumMoves() == 0) {
+            if (this->grid[0][7] != nullptr && !this->grid[0][7]->white && this->grid[0][7]->getNumMoves() == 0) {
                 // Condition where King's Rook has not moved yet
                 if (this->grid[0][5] == nullptr && this->grid[0][6] == nullptr) {
                     // Condition where bishop and knight have moved somewhere else
                     validMoves.push_back({0, 6});
                 }
             }
-            if (this->grid[0][0] != nullptr && !this->grid[7][7]->white && this->grid[0][0]->getNumMoves() == 0) {
+            if (this->grid[0][0] != nullptr && !this->grid[0][0]->white && this->grid[0][0]->getNumMoves() == 0) {
                 // Condition where Queen's Rook has not moved yet
-                if (this->grid[0][1] == nullptr && this->grid[0][2] == nullptr && this->grid[0][3]) {
+                if (this->grid[0][1] == nullptr && this->grid[0][2] == nullptr && this->grid[0][3] == nullptr) {
                     // Condition where bishop and knight have moved somewhere else
                     validMoves.push_back({0, 2});
                 }                

@@ -123,7 +123,9 @@ int main() {
                             }
                             if (selectedValid) {
                                 // Condition where piece moves (the turn must switch to avoid hazards)
+                                Utils::printBoard(board);
                                 Utils::movePiece(piece, board, i, j);
+                                Utils::printBoard(board);
                                 if (Utils::inCheck(whiteTurn ? blackKing : whiteKing, board)) {
                                     checked = true;
                                 } else {
@@ -148,8 +150,10 @@ int main() {
                                         rect.setFillColor((move.first + move.second) % 2 == 0 ? sf::Color{224, 215, 108, 255} : sf::Color{237, 227, 114, 255});
                                         validMovesRects.push_back(rect);
                                     }
-                                }                            
+                                }
                             }
+                        } else {
+                            pieceSelected = false;
                         }
                     }
                 }
@@ -158,8 +162,7 @@ int main() {
                     sf::Vector2i localPos{sf::Mouse::getPosition(window)};
                     i = localPos.y / 200;
                     j = localPos.x / 200;
-
-                    if ((0 <= i && i <= 8 && 0 <= j && j <= 8)) {
+                    if (0 <= i && i <= 8 && 0 <= j && j <= 8) {
                         piece = board.grid[i][j];
                         if (piece != nullptr && piece->white == whiteTurn && (validMoves = Utils::filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board)).size() != 0) {
                             pieceSelected = true;
@@ -170,7 +173,7 @@ int main() {
                                 rect.setFillColor((move.first + move.second) % 2 == 0 ? sf::Color{224, 215, 108, 255} : sf::Color{237, 227, 114, 255});
                                 validMovesRects.push_back(rect);
                             }
-                        }        
+                        }
                     }
 
                 }

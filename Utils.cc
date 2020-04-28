@@ -123,9 +123,9 @@ void Utils::undoCastle(Board& board) {
                 board.grid[sideI][5] = nullptr;
                 board.moveStack.pop_back();
             } else if (initPos.second - finPos.second > 1) {
-                board.grid[sideI][0] = board.grid[sideI][2];
+                board.grid[sideI][0] = board.grid[sideI][3];
                 board.grid[sideI][0]->updatePos(sideI, 0, true);
-                board.grid[sideI][2] = nullptr;
+                board.grid[sideI][3] = nullptr;
                 board.moveStack.pop_back();
             }
         }
@@ -182,13 +182,15 @@ bool Utils::inCheck(Piece* king, Board& board) {
     // pieces of the opposite color and see if they
     // coincide. If so, then the king is being Checked.
 
+
     std::pair<int,int> kingPos{king->getPos()};
 
     if (king->white) {
+        int i{0};
         for (const auto& blackPiece : board.black) {
             if (board.deadBlack.count(blackPiece) == 0) {
                 for (const auto& move : blackPiece->getValidMoves()) {
-                    if (move == kingPos) {
+                    if (move.first == kingPos.first && move.second == kingPos.second) {
                         return true;
                     }
                 }
@@ -198,7 +200,7 @@ bool Utils::inCheck(Piece* king, Board& board) {
         for (const auto& whitePiece : board.white) {
             if (board.deadWhite.count(whitePiece) == 0) {
                 for (const auto& move : whitePiece->getValidMoves()) {
-                    if (move == kingPos) {
+                    if (move.first == kingPos.first && move.second == kingPos.second) {
                         return true;
                     }
                 }
@@ -261,6 +263,9 @@ void Utils::movePiece(Piece* piece, Board& board, const int& i, const int& j, bo
             board.grid[i][j] = piece;
             piece->updatePos(i, j);
         }
+    }
+    if (board.moveStack.size() > 3) {
+        board.moveStack.erase(board.moveStack.begin());
     }
 
 }
