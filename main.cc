@@ -53,6 +53,38 @@ int main() {
     // run the program as long as the window is open
     while (window.isOpen()) {
 
+        if (!gameOver && checked) {
+            // Condition where player is in check. A full search over the alive
+            // pieces of the player's color will determine if any valid moves
+            // (filtered) exist. If not, CHECKMATE!
+            int numValidMoves{0};
+            if (whiteTurn) {
+                for (const auto& whitePiece : board.white) {
+                    if (board.deadWhite.count(whitePiece) == 0) {
+                        // Condiiton where white piece is alive
+                        numValidMoves += Utils::filterCheckedMoves(whiteKing, whitePiece, whitePiece->getValidMoves(), board).size();
+                    }
+                }
+                if (numValidMoves == 0) {
+                    std::cout << "Black wins!" << std::endl;
+                    gameOver = true;
+                    winRect.setPosition(200 * blackKing->getPos().second, 200 * blackKing->getPos().first);
+                }
+            } else {
+                for (const auto& blackPiece : board.black) {
+                    if (board.deadBlack.count(blackPiece) == 0) {
+                        // Condiiton where white piece is alive
+                        numValidMoves += Utils::filterCheckedMoves(blackKing, blackPiece, blackPiece->getValidMoves(), board).size();
+                    }
+                }
+                if (numValidMoves == 0) {
+                    std::cout << "White wins!" << std::endl;
+                    gameOver = true;
+                    winRect.setPosition(200 * whiteKing->getPos().second, 200 * whiteKing->getPos().first);
+                }
+            }
+        }
+
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
         while (window.pollEvent(event))
@@ -60,60 +92,15 @@ int main() {
             // "close requested" event: we close the window
             if (event.type == sf::Event::Closed)  {
                 window.close();
-            }
-        }
+            } else if (event.type == sf::Event::MouseButtonPressed) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
 
-        // if (gameOver) {
-        //     window.close();
-        // }
+                    i = event.mouseButton.y / 200;
+                    j = event.mouseButton.x / 200;
 
-        // Game logic occurs after the window has first loaded
-        if (windowLoaded && !gameOver) {
-            if (checked) {
-                // Condition where player is in check. A full search over the alive
-                // pieces of the player's color will determine if any valid moves
-                // (filtered) exist. If not, CHECKMATE!
-                int numValidMoves{0};
-                if (whiteTurn) {
-                    for (const auto& whitePiece : board.white) {
-                        if (board.deadWhite.count(whitePiece) == 0) {
-                            // Condiiton where white piece is alive
-                            numValidMoves += Utils::filterCheckedMoves(whiteKing, whitePiece, whitePiece->getValidMoves(), board).size();
-                        }
-                    }
-                    if (numValidMoves == 0) {
-                        std::cout << "Black wins!!!" << std::endl;
-                        gameOver = true;
-                        winRect.setPosition(200 * blackKing->getPos().second, 200 * blackKing->getPos().first);
-                    }
-                } else {
-                    for (const auto& blackPiece : board.black) {
-                        if (board.deadBlack.count(blackPiece) == 0) {
-                            // Condiiton where white piece is alive
-                            numValidMoves += Utils::filterCheckedMoves(blackKing, blackPiece, blackPiece->getValidMoves(), board).size();
-                        }
-                    }
-                    if (numValidMoves == 0) {
-                        std::cout << "White wins!!!" << std::endl;
-                        gameOver = true;
-                        winRect.setPosition(200 * whiteKing->getPos().second, 200 * whiteKing->getPos().first);
-                    }
-                }
-            }
-
-            if (pieceSelected) {
-                if (pressing == true) {
-                    while (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                        // Do nothing...
-                    }
-                    pressing = false;
-                } else {
-                    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                        sf::Vector2i localPos{sf::Mouse::getPosition(window)};
-                        i = localPos.y / 200;
-                        j = localPos.x / 200;
-                        
-                        if ((0 <= i && i <= 8 && 0 <= j && j <= 8)) {
+                    if (i >= 0 && i <= 8 && j >= 0 && j <= 8) {
+                        // Confirm that i and j are valid
+                        if (pieceSelected) {
                             bool selectedValid{false};
                             for (const auto& move : validMoves) {
                                 if (move.first == i && move.second == j) {
@@ -121,61 +108,51 @@ int main() {
                                     selectedValid = true;
                                 }
                             }
+                            // Case 1: Click valid move
                             if (selectedValid) {
-                                // Condition where piece moves (the turn must switch to avoid hazards)
                                 Utils::printBoard(board);
+                                // The piece move that was clicked should be executed
                                 Utils::movePiece(piece, board, i, j);
                                 Utils::printBoard(board);
-                                if (Utils::inCheck(whiteTurn ? blackKing : whiteKing, board)) {
-                                    checked = true;
-                                } else {
-                                    checked = false;
-                                }
+                                // Determine if opposing side is in check
+                                checked = Utils::inCheck(whiteTurn ? blackKing : whiteKing, board);
                                 // Switch turns
                                 whiteTurn = !whiteTurn;
                                 // Reset values for rendering
                                 pieceSelected = false;
                                 validMoves.clear();
                                 validMovesRects.clear();
+                            // Case 2: Click invalid move
                             } else {
                                 pieceSelected = false;
                                 validMoves.clear();
-                                validMovesRects.clear();
+                                validMovesRects.clear();                                
                                 piece = board.grid[i][j];
-                                if (!(piece == nullptr || piece->white != whiteTurn || (validMoves = Utils::filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board)).size() == 0)) {
+                                if (piece != nullptr && piece->white == whiteTurn && (validMoves = Utils::filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board)).size() != 0) {
                                     pieceSelected = true;
+                                    pressing = true;
                                     for (const auto& move : validMoves) {
                                         sf::RectangleShape rect{sf::Vector2f{200, 200}};
                                         rect.setPosition(move.second * 200, move.first * 200);
                                         rect.setFillColor((move.first + move.second) % 2 == 0 ? sf::Color{224, 215, 108, 255} : sf::Color{237, 227, 114, 255});
                                         validMovesRects.push_back(rect);
                                     }
-                                }
+                                }                                
                             }
                         } else {
-                            pieceSelected = false;
-                        }
-                    }
-                }
-            } else {
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                    sf::Vector2i localPos{sf::Mouse::getPosition(window)};
-                    i = localPos.y / 200;
-                    j = localPos.x / 200;
-                    if (0 <= i && i <= 8 && 0 <= j && j <= 8) {
-                        piece = board.grid[i][j];
-                        if (piece != nullptr && piece->white == whiteTurn && (validMoves = Utils::filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board)).size() != 0) {
-                            pieceSelected = true;
-                            pressing = true;
-                            for (const auto& move : validMoves) {
-                                sf::RectangleShape rect{sf::Vector2f{200, 200}};
-                                rect.setPosition(move.second * 200, move.first * 200);
-                                rect.setFillColor((move.first + move.second) % 2 == 0 ? sf::Color{224, 215, 108, 255} : sf::Color{237, 227, 114, 255});
-                                validMovesRects.push_back(rect);
+                            piece = board.grid[i][j];
+                            if (piece != nullptr && piece->white == whiteTurn && (validMoves = Utils::filterCheckedMoves(piece->white ? whiteKing : blackKing, piece, piece->getValidMoves(), board)).size() != 0) {
+                                pieceSelected = true;
+                                pressing = true;
+                                for (const auto& move : validMoves) {
+                                    sf::RectangleShape rect{sf::Vector2f{200, 200}};
+                                    rect.setPosition(move.second * 200, move.first * 200);
+                                    rect.setFillColor((move.first + move.second) % 2 == 0 ? sf::Color{224, 215, 108, 255} : sf::Color{237, 227, 114, 255});
+                                    validMovesRects.push_back(rect);
+                                }
                             }
                         }
                     }
-
                 }
             }
         }

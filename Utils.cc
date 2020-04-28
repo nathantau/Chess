@@ -137,7 +137,6 @@ void Utils::castle(Piece* piece, const int& i, const int& j, Board& board) {
 
     // This function handles only the movement of the corresponding
     // rook to the King being castled
-
     if (piece == nullptr || piece->getSHName() != "K") {
         return;
     }
@@ -164,6 +163,7 @@ std::vector<std::pair<int,int>> Utils::filterCheckedMoves(Piece* king, Piece* pi
     std::pair<int,int> piecePos{piece->getPos()};
     std::vector<std::pair<int,int>> filteredMoves;
 
+
     for (const auto& move : validMoves) {
         movePiece(piece, board, move.first, move.second, true);
         if (!inCheck(king, board)) {
@@ -182,11 +182,11 @@ bool Utils::inCheck(Piece* king, Board& board) {
     // pieces of the opposite color and see if they
     // coincide. If so, then the king is being Checked.
 
+    return false;
 
     std::pair<int,int> kingPos{king->getPos()};
 
     if (king->white) {
-        int i{0};
         for (const auto& blackPiece : board.black) {
             if (board.deadBlack.count(blackPiece) == 0) {
                 for (const auto& move : blackPiece->getValidMoves()) {
@@ -264,10 +264,6 @@ void Utils::movePiece(Piece* piece, Board& board, const int& i, const int& j, bo
             piece->updatePos(i, j);
         }
     }
-    if (board.moveStack.size() > 3) {
-        board.moveStack.erase(board.moveStack.begin());
-    }
-
 }
 
 void Utils::undoMove(Board& board) {

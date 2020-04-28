@@ -62,6 +62,7 @@ std::vector<std::pair<int,int>> King::getValidMoves() const {
             }            
         }
     }
+    std::cout << "RETURNED VLAID MOVES" << std::endl;
     return validMoves;
 }
 
