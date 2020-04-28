@@ -48,6 +48,7 @@ bool Utils::promote(Piece* piece, const int& i, const int& j, Board& board, bool
 
             std::cout << promoted->getSHName() << std::endl;
             // Set location of promoted
+            board.grid[i][j] = nullptr;
             board.grid[i][j] = promoted;
 
             // Correct moveStack
@@ -243,9 +244,10 @@ void Utils::movePiece(Piece* piece, Board& board, const int& i, const int& j, bo
         // Rook moves only if the conditions for castling are satisfied
         castle(piece, i, j, board);
         enPassant(piece, i, j, board);
-        promote(piece, i, j, board, test);
         board.grid[piece->getPos().first][piece->getPos().second] = nullptr;
-        board.grid[i][j] = piece;
+        if (!promote(piece, i, j, board, test)) {
+            board.grid[i][j] = piece;
+        }
         piece->updatePos(i, j);
     } else {
         // Condition where a piece of the opposite color is in the square of interest
@@ -256,8 +258,8 @@ void Utils::movePiece(Piece* piece, Board& board, const int& i, const int& j, bo
             board.deadWhite.insert(newPos);
         }
         if (!promote(piece, i, j, board, test)) {
-            piece->updatePos(i, j);
             board.grid[i][j] = piece;
+            piece->updatePos(i, j);
         }
     }
 
