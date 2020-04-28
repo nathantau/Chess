@@ -5,23 +5,23 @@
 #include <iostream>
 #include <string>
 
-#include "Piece.cc"
-#include "Pawn.cc"
-#include "Rook.cc"
-#include "Knight.cc"
-#include "Bishop.cc"
-#include "Queen.cc"
-#include "King.cc"
+#include "Piece.h"
+#include "Pawn.h"
+#include "Rook.h"
+#include "Knight.h"
+#include "Bishop.h"
+#include "Queen.h"
+#include "King.h"
 
 class Board {
     public:
         Board();
         ~Board();
-        vector<vector<Piece*>> grid;
-        unordered_set<Piece*> black;
-        unordered_set<Piece*> white;
-        unordered_set<Piece*> deadBlack;
-        unordered_set<Piece*> deadWhite;
+        std::vector<std::vector<Piece*>> grid;
+        std::unordered_set<Piece*> black;
+        std::unordered_set<Piece*> white;
+        std::unordered_set<Piece*> deadBlack;
+        std::unordered_set<Piece*> deadWhite;
         MoveStack moveStack;
     private:
         void initPawns();

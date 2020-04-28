@@ -1,16 +1,13 @@
 #include "King.h"
+#include <iostream>
 
-King::King(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
+King::King(std::vector<std::vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
 
 King::~King() {}
 
-void King::move(const int& i, const int& j) {}
+std::vector<std::pair<int,int>> King::getValidMoves() const {
 
-bool King::isValid(const int&i, const int& j) const { return true; }
-
-vector<pair<int,int>> King::getValidMoves() const {
-
-    vector<pair<int,int>> validMoves{};
+    std::vector<std::pair<int,int>> validMoves{};
 
     // Moves that validate checking will be done in a higher-level class.
 
@@ -34,31 +31,31 @@ vector<pair<int,int>> King::getValidMoves() const {
     if (this->numMoves == 0) {
         // Condition where king is unmoved
         if (this->white) {
-            if (this->grid[7][7] != nullptr && this->grid[7][7]->getNumMoves() == 0) {
+            if (this->grid[7][7] != nullptr && this->grid[7][7]->white && this->grid[7][7]->getNumMoves() == 0) {
                 // Condition where King's Rook has not moved yet
                 if (this->grid[7][5] == nullptr && this->grid[7][6] == nullptr) {
                     // Condition where bishop and knight have moved somewhere else
                     validMoves.push_back({7, 6});
                 }
             }
-            if (this->grid[7][0] != nullptr && this->grid[7][0]->getNumMoves() == 0) {
+            if (this->grid[7][0] != nullptr && this->grid[7][0]->white && this->grid[7][0]->getNumMoves() == 0) {
                 // Condition where Queen's Rook has not moved yet
-                if (this->grid[7][1] == nullptr && this->grid[7][2] == nullptr && this->grid[7][3]) {
+                if (this->grid[7][1] == nullptr && this->grid[7][2] == nullptr && this->grid[7][3] == nullptr) {
                     // Condition where bishop and knight have moved somewhere else
                     validMoves.push_back({7, 2});
                 }                
             }
         } else {
-            if (this->grid[0][7] != nullptr && this->grid[0][7]->getNumMoves() == 0) {
+            if (this->grid[0][7] != nullptr && !this->grid[0][7]->white && this->grid[0][7]->getNumMoves() == 0) {
                 // Condition where King's Rook has not moved yet
                 if (this->grid[0][5] == nullptr && this->grid[0][6] == nullptr) {
                     // Condition where bishop and knight have moved somewhere else
                     validMoves.push_back({0, 6});
                 }
             }
-            if (this->grid[0][0] != nullptr && this->grid[0][0]->getNumMoves() == 0) {
+            if (this->grid[0][0] != nullptr && !this->grid[0][0]->white && this->grid[0][0]->getNumMoves() == 0) {
                 // Condition where Queen's Rook has not moved yet
-                if (this->grid[0][1] == nullptr && this->grid[0][2] == nullptr && this->grid[0][3]) {
+                if (this->grid[0][1] == nullptr && this->grid[0][2] == nullptr && this->grid[0][3] == nullptr) {
                     // Condition where bishop and knight have moved somewhere else
                     validMoves.push_back({0, 2});
                 }                
@@ -68,11 +65,10 @@ vector<pair<int,int>> King::getValidMoves() const {
     return validMoves;
 }
 
-
-string King::getName() const {
+std::string King::getName() const {
     return "King";
 }
 
-string King::getSHName() const {
+std::string King::getSHName() const {
     return "K";
 }

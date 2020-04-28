@@ -1,18 +1,14 @@
 #include "Knight.h"
 
-Knight::Knight(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
+Knight::Knight(std::vector<std::vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
 
 Knight::~Knight() {}
 
-void Knight::move(const int& i, const int& j) {}
+std::vector<std::pair<int,int>> Knight::getValidMoves() const {
 
-bool Knight::isValid(const int&i, const int& j) const { return true; }
+    std::vector<std::pair<int,int>> validMoves{};
 
-vector<pair<int,int>> Knight::getValidMoves() const {
-
-    vector<pair<int,int>> validMoves{};
-
-    vector<pair<int,int>> iDiffsJDiffs;
+    std::vector<std::pair<int,int>> iDiffsJDiffs;
     iDiffsJDiffs.push_back({1, 2});
     iDiffsJDiffs.push_back({1, -2});
     iDiffsJDiffs.push_back({-1, 2});
@@ -38,10 +34,10 @@ vector<pair<int,int>> Knight::getValidMoves() const {
     return validMoves;
 }
 
-string Knight::getName() const {
+std::string Knight::getName() const {
     return "Knight";
 }
 
-string Knight::getSHName() const {
+std::string Knight::getSHName() const {
     return "k";
 }

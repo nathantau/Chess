@@ -1,23 +1,15 @@
 #include "Rook.h"
 
-Rook::Rook(vector<vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
+Rook::Rook(std::vector<std::vector<Piece*>>& grid, MoveStack& moveStack, const int& i, const int& j, bool white) : Piece{grid, moveStack, i, j, white} {}
 
 Rook::~Rook() {}
 
-void Rook::move(const int& i, const int& j) {}
+std::vector<std::pair<int,int>> Rook::getValidMoves() const {
 
-bool Rook::isValid(const int&i, const int& j) const { 
-
-    
-    return true; 
-}
-
-vector<pair<int,int>> Rook::getValidMoves() const {
-
-    vector<pair<int,int>> validMoves{};
+    std::vector<std::pair<int,int>> validMoves{};
 
     // Moving Up/Down
-    vector<pair<int,int>> iDiffsJDiffs{};
+    std::vector<std::pair<int,int>> iDiffsJDiffs{};
     iDiffsJDiffs.push_back({1, 0});
     iDiffsJDiffs.push_back({-1, 0});
     iDiffsJDiffs.push_back({0, 1});
@@ -57,10 +49,10 @@ vector<pair<int,int>> Rook::getValidMoves() const {
     return validMoves;
 }
 
-string Rook::getName() const {
+std::string Rook::getName() const {
     return "Rook";
 }
 
-string Rook::getSHName() const {
+std::string Rook::getSHName() const {
     return "r";
 }
